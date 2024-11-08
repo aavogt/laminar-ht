@@ -112,14 +112,15 @@ getTemperatureFD pe rhos zs tWall | V.length zs == V.length tWall = V.imap addRZ
 
             hr = h01 + h21
             hz = h10 + h12
-            -- should k be added later?
+
             -- first derivative in rho
             d10 = fdv0 [(m01, -1 / hr), (m21, 1 / hr)]
 
             -- first derivative in z
             d01 = fdv0 [(m10, -1 / hz), (m12, 1 / hz)]
 
-            -- second derivative in rho
+            -- denominator in the second derivative in rho
+            -- see stencil.wxmx for the derivation
             hrr = (h01 * h21 ^ 2 + h01 ^ 2 * h21) / 2
 
             d20 = fdv0 [(m01, h21 / hrr), (m11, -hr / hrr), (m21, h01 / hrr)]
