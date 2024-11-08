@@ -1,0 +1,109 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.37.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           laminar-ht
+version:        0.0.0
+description:    The laminarht program
+                .
+                laminarht [OPTIONS]
+                Solve the laminar flow heat transfer problem with constant wall temperatures, and store the results in an sqlite database. Flags can have multiple values with first,step..last or a,b,c,d interpreted as usual, and all possible combinations (cartesian product) are solved. Results already in the database are not recomputed.
+                .
+                Common flags;
+                .
+                > -p --pes=ITEM         Peclet number; 200,500
+                > -r --rhos=ITEM        radius rho; 0,0.05..1
+                > -z --zs=ITEM          distance z; 0,2..100
+                > -n --nlambdas=ITEM    number of eigenvalues; 6
+                > -l --lambdatols=ITEM  xtolerance for eigenvalue secant method; 1e-20
+                > -h --hs=ITEM          finite difference step size h; 1e-4
+                > -s --sum-ns=ITEM      number of terms in Richardson extrapolation of the
+                >                       eigenvalue sum (currently unused); 3
+                > -a --acb-precs=ITEM   Flint2 acb precision; 2048
+                > -o --output-db=ITEM   sqlite output file; laminarHT.db
+                > -? --help             Display help message
+                > -V --version          Print version information
+                > -v --verbose          Loud verbosity
+                > -q --quiet            Quiet verbosity
+                .
+                The schema is
+                > CREATE TABLE pars (id INTEGER PRIMARY KEY, pe REAL, nlambda INTEGER,
+                >   lambdatol REAL, h REAL, sum_n INTEGER, prec INTEGER, UNIQUE(pe, nlambda,
+                >   lambdatol, h, sum_n, prec));
+                .
+                > CREATE TABLE spectrum (par INTEGER, m INTEGER, lambda REAL, lambdapm REAL,
+                >   a REAL, apm REAL,  FOREIGN KEY (par) REFERENCES pars(id));
+                .
+                > CREATE TABLE temperatures (par INTEGER, rho REAL, z REAL, temp REAL,
+                >   temp_pm REAL, FOREIGN KEY (par) REFERENCES pars(id));
+                .
+                `pars` stores command line arguments other than rhos and zs
+                .
+                `spectrum` stores intermediate values
+                .
+                `temperatures` which stores the T(rho, z)
+                .
+                A trailing "pm" means it is the radius of the interval
+                See http://aavogt.github.io/laminar-ht/a.html for an example of loading the output.
+                .
+                For installation you need libflint-dev <= 0.3 until https://github.com/monien/Flint2/issues/1 is fixed.
+                I needed the following,
+                .
+                > wget https://github.com/flintlib/flint/releases/download/v3.0.0/flint-3.0.0.tar.gz
+                > tar xf flint-3* && cd flint-3*
+                > ./configure --prefix=/usr
+                > make -j8
+                > sudo checkinstall -y --pkgname=libflint-dev
+                .
+                Then laminar-ht can be installed with
+                .
+                > wget https://github.com/aavogt/laminar-ht/archive/refs/heads/master.zip && unzip master.zip && cd laminar-ht-master && cabal install
+author:         Adam Vogt <vogt.adam@gmail.com>
+maintainer:     Adam Vogt <vogt.adam@gmail.com>
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+
+executable laminar-ht
+  main-is: main.hs
+  other-modules:
+      Args
+      NumMethods
+      NumT
+      NumT.IO
+      Pipe
+      Paths_laminar_ht
+  hs-source-dirs:
+      src
+  default-extensions:
+      ApplicativeDo
+      BlockArguments
+      DeriveDataTypeable
+      DeriveFunctor
+      DeriveTraversable
+      DuplicateRecordFields
+      FlexibleContexts
+      FlexibleInstances
+      ImplicitParams
+      LambdaCase
+      NamedFieldPuns
+      PatternSynonyms
+      RecordWildCards
+      ScopedTypeVariables
+      TypeApplications
+      ViewPatterns
+  build-depends:
+      Flint2
+    , base
+    , cmdargs
+    , containers
+    , hmatrix
+    , lens
+    , linear
+    , process
+    , regex-applicative
+    , sqlite-simple
+    , vector
+  default-language: Haskell2010
