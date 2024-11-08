@@ -45,7 +45,7 @@ description:    The laminarht program
                 .
                 `temperatures` which stores the T(rho, z)
                 .
-                A trailing "pm" means it is the radius of the interval
+                A trailing "pm" means it is the radius of Flint2's interval/ball arithmetic, which describes the error contributed by built-in operations (*/- etc.) as well as from stopping the secant method (--lambdatols) but it does not include error from from including only a subset of eigenvalues (ie. the effect of --nlambdas).
                 See http://aavogt.github.io/laminar-ht/a.html for an example of loading the output.
                 .
                 For installation you need libflint-dev <= 0.3 until https://github.com/monien/Flint2/issues/1 is fixed.
